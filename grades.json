@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-24T19:17:42.892Z",
+  "records": {
+    "1c31fc88aa9bb54d6f486bb16d15c8e307c3068bd8ed2209bacda00d15b858e1": {
+      "pinSalt": "4d89d0bf58ce9dd24222a0b662cdc32a",
+      "pinHash": "ac09100d32e6bfcfa0e2249461e20ff6b6fe67f4da45529ad7ab7864f95a2565",
+      "scale": "4.5",
+      "previousTerms": [
+        {
+          "id": "a1d72034-9964-47af-a46c-fe8c7b452ec1",
+          "term": "Semester 1",
+          "gpa": 3,
+          "gpaCredits": 16,
+          "earnedCredits": 16
+        },
+        {
+          "id": "8ff716ba-abac-45ec-9adb-5d91ae710c86",
+          "term": "Semester 2",
+          "gpa": 3.5,
+          "gpaCredits": 15,
+          "earnedCredits": 15
+        },
+        {
+          "id": "bafde498-fbad-4081-bfae-69ffa53f0706",
+          "term": "Semester 3",
+          "gpa": 3.5,
+          "gpaCredits": 15,
+          "earnedCredits": 15
+        },
+        {
+          "id": "1ba3a35e-b4be-416b-99fe-883870069312",
+          "term": "Semester 4",
+          "gpa": 4.25,
+          "gpaCredits": 15,
+          "earnedCredits": 15
+        },
+        {
+          "id": "5848d88b-70ac-4b47-b6db-477b4cda8d9b",
+          "term": "Semester 5",
+          "gpa": 4.5,
+          "gpaCredits": 15,
+          "earnedCredits": 15
+        }
+      ],
+      "courses": [
+        {
+          "id": "1b981bf6-b69f-4abd-b22a-f09d02f717c4",
+          "name": "CV",
+          "term": "2026 Spring",
+          "credits": 3,
+          "grade": "B+"
+        },
+        {
+          "id": "08e64243-d36d-4706-ac8f-edc586714c00",
+          "name": "sw",
+          "term": "2026 Spring",
+          "credits": 3,
+          "grade": "C+"
+        },
+        {
+          "id": "c8ef3d4c-a5f1-4144-a6af-73b5abdfcbec",
+          "name": "leader",
+          "term": "2026 Spring",
+          "credits": 3,
+          "grade": "A+"
+        },
+        {
+          "id": "0393b1fc-22f8-4c18-824b-d45331b44db1",
+          "name": "sigma",
+          "term": "2026 Spring",
+          "credits": 3,
+          "grade": "A+"
+        },
+        {
+          "id": "9a4d31bd-fcec-47fd-8881-c860933c493c",
+          "name": "antro",
+          "term": "2026 Spring",
+          "credits": 3,
+          "grade": "B0"
+        }
+      ],
+      "totalCreditsRequired": 132,
+      "goalPlan": {
+        "semestersRemaining": 3,
+        "targetCgpa": 4,
+        "futureCredits": [
+          15,
+          15,
+          11
+        ]
+      },
+      "updatedAt": "2026-06-24T19:17:42.892Z"
+    }
+  }
+}

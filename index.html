@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Check whether your required student surveys are complete.">
+  <title>Survey Status · 설문 완료 확인</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Survey Status home">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>Survey Status</span>
+    </a>
+    <nav class="main-nav" aria-label="Student tools">
+      <a class="active" href="/">Survey status</a>
+      <a href="/grades">Grade calculator</a>
+    </nav>
+  </header>
+
+  <main class="student-shell">
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">2026 · Student services</p>
+      <h1 id="page-title">One ID.<br><span>Every survey.</span></h1>
+      <p class="hero-copy">Enter your student ID to check whether your required surveys have been completed.</p>
+      <p class="hero-copy-ko" lang="ko">학번을 입력하여 필수 설문 완료 여부를 확인하세요.</p>
+    </section>
+
+    <section class="lookup-card" aria-labelledby="lookup-title">
+      <div class="card-heading">
+        <div>
+          <p class="step-label">01 · CHECK</p>
+          <h2 id="lookup-title">Find my status</h2>
+        </div>
+        <span class="privacy-pill">Private lookup</span>
+      </div>
+
+      <form id="lookup-form" novalidate>
+        <label for="student-id">Student ID <span lang="ko">학번</span></label>
+        <div class="input-row">
+          <input id="student-id" name="studentId" type="text" inputmode="numeric" autocomplete="off" minlength="4" maxlength="32" placeholder="e.g. 202612034" required>
+          <button type="submit">Check status <span aria-hidden="true">→</span></button>
+        </div>
+        <p id="form-error" class="form-error" role="alert"></p>
+      </form>
+
+      <div id="result" class="result" hidden aria-live="polite">
+        <div class="result-header">
+          <div>
+            <p class="step-label">02 · RESULT</p>
+            <h3>Your survey record</h3>
+          </div>
+          <span id="masked-id" class="masked-id"></span>
+        </div>
+        <div id="status-grid" class="status-grid"></div>
+        <p class="result-note">“Not completed” means your ID is not in the latest completed-student list. Contact your department if you believe this is incorrect.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Only completion status is shown. Names and survey answers are never displayed.</p>
+    <a href="/admin">Administrator</a>
+  </footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>

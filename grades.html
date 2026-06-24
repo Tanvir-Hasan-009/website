@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Calculate and securely save your cumulative GPA and earned credits.">
+  <title>Grade Calculator · 성적 계산기</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Survey Status home">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>Student Tools</span>
+    </a>
+    <nav class="main-nav" aria-label="Student tools">
+      <a href="/">Survey status</a>
+      <a class="active" href="/grades">Grade calculator</a>
+    </nav>
+  </header>
+
+  <main class="grade-shell">
+    <section class="grade-hero" aria-labelledby="grade-title">
+      <div>
+        <p class="eyebrow">Grade workspace · 성적 계산</p>
+        <h1 id="grade-title">Make every<br><span>credit count.</span></h1>
+      </div>
+      <p>Calculate cumulative GPA and earned credits, then save the record securely under your student ID for your next visit.</p>
+    </section>
+
+    <section id="grade-access" class="grade-access-card" aria-labelledby="access-title">
+      <div class="access-copy">
+        <p class="step-label">PRIVATE RECORD</p>
+        <h2 id="access-title">Open your grade record</h2>
+        <p>Your PIN protects the grades saved under your student ID. On your first visit, this PIN will be created when you save.</p>
+      </div>
+      <form id="grade-access-form">
+        <label for="grade-student-id">Student ID <span lang="ko">학번</span></label>
+        <input id="grade-student-id" type="text" inputmode="numeric" autocomplete="username" maxlength="32" placeholder="e.g. 202612034" required>
+        <label for="grade-pin">PIN <span>4–12 numbers</span></label>
+        <input id="grade-pin" type="password" inputmode="numeric" pattern="[0-9]{4,12}" minlength="4" maxlength="12" autocomplete="current-password" placeholder="••••" required>
+        <button type="submit">Open calculator <span aria-hidden="true">→</span></button>
+        <p id="grade-access-error" class="form-error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="grade-workspace" class="grade-workspace" hidden aria-labelledby="workspace-title">
+      <div class="workspace-toolbar">
+        <div>
+          <p class="step-label">YOUR RECORD · <span id="grade-masked-id"></span></p>
+          <h2 id="workspace-title">Cumulative overview</h2>
+        </div>
+        <div class="toolbar-actions">
+          <label for="grade-scale">Grading scale</label>
+          <select id="grade-scale">
+            <option value="4.5">4.5 scale</option>
+            <option value="4.0">4.0 scale</option>
+          </select>
+          <button id="lock-grades" class="secondary-button" type="button">Lock record</button>
+        </div>
+      </div>
+
+      <div id="new-record-note" class="new-record-note" hidden>
+        <strong>New record.</strong> Your PIN will be set when you save for the first time. Keep it somewhere safe—there is no automatic PIN recovery.
+      </div>
+
+      <div class="grade-summary" aria-label="Grade summary">
+        <article class="summary-primary">
+          <span>Average CGPA</span>
+          <strong id="summary-cgpa">—</strong>
+          <small id="summary-scale">out of 4.5</small>
+        </article>
+        <article>
+          <span>Current GPA</span>
+          <strong id="summary-current">—</strong>
+          <small>courses below</small>
+        </article>
+        <article>
+          <span>Total credits earned</span>
+          <strong id="summary-earned">0</strong>
+          <small>previous + current</small>
+        </article>
+        <article>
+          <span>Total GPA credits</span>
+          <strong id="summary-credits">0</strong>
+          <small>used for CGPA</small>
+        </article>
+      </div>
+
+      <div class="previous-panel">
+        <div class="course-heading">
+          <div>
+            <p class="step-label">PREVIOUS RESULTS</p>
+            <h2>Previous semesters</h2>
+            <p class="section-help">Start with Semester 1 and enter only the results. The next semester appears automatically when the row is complete.</p>
+          </div>
+        </div>
+        <div class="graduation-credit-card">
+          <div>
+            <label for="total-credits-required">How many total credits do you need to graduate?</label>
+            <p>Enter this once. It and your completed semester results are saved automatically for this student ID.</p>
+          </div>
+          <input id="total-credits-required" type="number" min="1" max="400" step="0.5" inputmode="decimal" placeholder="e.g. 130">
+          <div class="credit-progress" aria-live="polite">
+            <strong id="credits-remaining">—</strong>
+            <span>credits remaining</span>
+            <small id="credit-progress-copy">Enter your graduation requirement.</small>
+          </div>
+        </div>
+        <p id="progress-save-status" class="progress-save-status">Completed semester results save automatically.</p>
+        <div class="previous-table-wrap">
+          <div class="previous-table" role="table" aria-label="Previous semester results">
+            <div class="previous-table-head" role="row">
+              <span role="columnheader">Semester</span>
+              <span role="columnheader">GPA</span>
+              <span role="columnheader">GPA credits</span>
+              <span role="columnheader">Earned credits</span>
+              <span aria-hidden="true"></span>
+            </div>
+            <div id="previous-term-list" role="rowgroup"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-panel">
+        <div class="course-heading">
+          <div>
+            <p class="step-label">COURSE HISTORY</p>
+            <h2>Courses and grades</h2>
+          </div>
+          <button id="add-course" class="secondary-button" type="button">+ Add course</button>
+        </div>
+
+        <div class="course-table-wrap">
+          <div class="course-table" role="table" aria-label="Courses and grades">
+            <div class="course-table-head" role="row">
+              <span role="columnheader">Course</span>
+              <span role="columnheader">Semester</span>
+              <span role="columnheader">Credits</span>
+              <span role="columnheader">Grade</span>
+              <span aria-hidden="true"></span>
+            </div>
+            <div id="course-list" role="rowgroup"></div>
+          </div>
+        </div>
+
+        <div id="empty-courses" class="empty-courses">
+          <span aria-hidden="true">＋</span>
+          <p>Add your first course to begin calculating.</p>
+        </div>
+
+        <section class="goal-planner" aria-labelledby="goal-planner-title">
+          <div class="goal-heading">
+            <div>
+              <p class="step-label">CGPA GOAL PLAN</p>
+              <h2 id="goal-planner-title">Can I reach my goal?</h2>
+              <p>Tell us what remains. The planner will calculate the future results you need.</p>
+            </div>
+            <span class="goal-step">Future plan</span>
+          </div>
+
+          <div class="planner-question">
+            <label for="semesters-remaining">1. How many semesters do you have left?</label>
+            <input id="semesters-remaining" type="number" min="1" max="16" step="1" inputmode="numeric" placeholder="e.g. 3">
+          </div>
+
+          <div id="goal-details" hidden>
+            <div class="planner-question">
+              <label for="target-cgpa">2. What CGPA do you want to graduate with?</label>
+              <input id="target-cgpa" type="number" min="0" max="4.5" step="0.01" inputmode="decimal" placeholder="e.g. 4.00">
+            </div>
+            <div class="planner-question">
+              <label>3. How many GPA credits will you take each future semester?</label>
+              <div id="future-credit-list" class="future-credit-list"></div>
+            </div>
+          </div>
+
+          <div id="goal-projection" class="goal-projection" hidden aria-live="polite">
+            <div class="projection-heading">
+              <span id="goal-result-icon" class="projection-icon" aria-hidden="true">✓</span>
+              <div>
+                <h3 id="goal-result-title"></h3>
+                <p id="goal-result-copy"></p>
+              </div>
+            </div>
+            <div id="future-result-list" class="future-result-list"></div>
+          </div>
+        </section>
+
+        <div class="save-bar">
+          <p id="save-status">Changes are calculated instantly. Save when you are ready.</p>
+          <button id="save-grades" type="button">Save grade record</button>
+        </div>
+        <p id="grade-save-error" class="form-error" role="alert"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Your raw student ID and PIN are never stored. Grade records remain on this server.</p>
+    <a href="/">Check survey status</a>
+  </footer>
+  <script src="/grades.js" defer></script>
+</body>
+</html>

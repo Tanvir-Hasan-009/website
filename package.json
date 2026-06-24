@@ -1,0 +1,13 @@
+{
+  "name": "student-survey-status",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Privacy-conscious student survey completion lookup",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

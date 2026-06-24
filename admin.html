@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Administrator · Survey Status</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>Survey Status</span>
+    </a>
+    <a class="back-link" href="/">← Student lookup</a>
+  </header>
+
+  <main class="admin-shell">
+    <section class="admin-intro">
+      <p class="eyebrow">Administrator workspace</p>
+      <h1>Keep completion data current.</h1>
+      <p>Upload one completed-student CSV for each survey. A new upload replaces the previous list for that survey.</p>
+    </section>
+
+    <section id="login-panel" class="login-card" aria-labelledby="login-title">
+      <p class="step-label">SECURE ACCESS</p>
+      <h2 id="login-title">Administrator sign in</h2>
+      <form id="login-form">
+        <label for="admin-password">Administrator password</label>
+        <input id="admin-password" type="password" minlength="10" autocomplete="current-password" required>
+        <button type="submit">Open dashboard <span aria-hidden="true">→</span></button>
+        <p id="login-error" class="form-error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="dashboard" hidden aria-labelledby="dashboard-title">
+      <div class="dashboard-heading">
+        <div>
+          <p class="step-label">DATA SOURCES</p>
+          <h2 id="dashboard-title">Survey datasets</h2>
+        </div>
+        <button id="sign-out" class="text-button" type="button">Sign out</button>
+      </div>
+      <div id="dataset-grid" class="dataset-grid"></div>
+      <aside class="csv-guide">
+        <div>
+          <p class="step-label">CSV FORMAT</p>
+          <h2>Simple by design.</h2>
+        </div>
+        <div class="guide-copy">
+          <p>Your CSV must contain a <code>student_id</code> or <code>학번</code> column. If every listed student is complete, that is all you need.</p>
+          <pre><code>student_id
+202612034
+202612038</code></pre>
+          <p>Optionally add <code>completed</code> with values such as <code>yes/no</code>, <code>true/false</code>, or <code>완료/미완료</code>.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="/admin.js" defer></script>
+</body>
+</html>
