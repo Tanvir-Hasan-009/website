@@ -457,6 +457,46 @@ code { font-family: ui-monospace, monospace; }
   .future-result-list { grid-template-columns: 1fr; }
 }
 
+/* Sudoku insights (admin) */
+.sudoku-insights { margin-top: 64px; }
+.insight-actions { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+.insight-actions button:not(.text-button) { padding: 11px 16px; font-size: 0.8rem; }
+.insight-totals { margin-top: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.insight-totals article { padding: 22px; background: white; border: 1px solid var(--line); border-radius: 20px; }
+.insight-totals strong, .insight-totals span { display: block; }
+.insight-totals strong { font-family: 'Manrope', sans-serif; font-size: 2rem; letter-spacing: -0.05em; }
+.insight-totals span { margin-top: 4px; color: var(--muted); font-size: 0.75rem; }
+.insight-grid { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.insight-card { padding: 26px; background: white; border: 1px solid var(--line); border-radius: 22px; }
+.insight-card h3 { margin: 0; font-family: 'Manrope', sans-serif; font-size: 1.15rem; letter-spacing: -0.03em; }
+.insight-sub { margin: 5px 0 18px; color: var(--muted); font-size: 0.76rem; line-height: 1.5; }
+.insight-wide { margin-top: 14px; }
+.insight-empty { margin: 0; color: var(--muted); font-size: 0.82rem; }
+.bar-list { display: grid; gap: 12px; }
+.bar-top { display: flex; justify-content: space-between; gap: 12px; font-size: 0.8rem; }
+.bar-top strong { font-size: 0.75rem; }
+.bar-track { margin-top: 6px; height: 9px; background: #edf1eb; border-radius: 99px; overflow: hidden; }
+.bar-track i { display: block; height: 100%; background: var(--green); border-radius: 99px; }
+.vote-notes { margin-top: 16px; display: grid; gap: 6px; }
+.vote-notes p { margin: 0; padding: 9px 11px; background: #f5f7f3; border-radius: 10px; font-size: 0.76rem; line-height: 1.45; }
+.table-scroll { overflow-x: auto; }
+.level-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; white-space: nowrap; }
+.level-table th { padding: 8px 10px; color: var(--muted); font-size: 0.68rem; font-weight: 700; text-align: left; border-bottom: 1px solid var(--line); }
+.level-table td { padding: 8px 10px; border-bottom: 1px solid #eef1ec; font-variant-numeric: tabular-nums; }
+.level-table tr.is-warning td { background: var(--orange-soft); }
+
+@media (max-width: 700px) {
+  .insight-totals { grid-template-columns: 1fr 1fr; }
+  .insight-grid { grid-template-columns: 1fr; }
+  .insight-card { padding: 20px 16px; }
+  .sudoku-insights .dashboard-heading { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .insight-actions { margin-left: 0; }
+}
+
+@media (max-width: 480px) {
+  .brand > span:last-child { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
