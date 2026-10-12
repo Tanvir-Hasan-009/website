@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Games, tools and research write-ups by Tanvir Hasan.">
+</head>
+<body>
+<title>Tanvir Hasan Artifacts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: short intro, filter row, then a two-column grid of project cards that stacks on phones. */
+:root {
+  --bg: #f2f5ef;
+  --surface: #ffffff;
+  --sunk: #e6ece2;
+  --ink: #10231d;
+  --muted: #5d6e68;
+  --line: #d5ddd3;
+  --accent: #0b6b4f;
+  --accent-ink: #ffffff;
+  --mint: #c8f36a;
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1714; --surface: #15211d; --sunk: #1c2a25; --ink: #e5eee8; --muted: #94a69f; --line: #2a3a34;
+  --accent: #6fd3a8; --accent-ink: #082018; --mint: #a6d94c; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0d1714; --surface: #15211d; --sunk: #1c2a25; --ink: #e5eee8; --muted: #94a69f; --line: #2a3a34;
+  --accent: #6fd3a8; --accent-ink: #082018; --mint: #a6d94c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+a { color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 44px 56px; }
+
+.intro { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: center; }
+.mono { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 18px 18px 18px 5px; background: var(--accent); color: var(--accent-ink); font-family: var(--display); font-weight: 800; font-size: 1.5rem; letter-spacing: -.04em; }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 5.5vw, 3.6rem); line-height: 1; letter-spacing: -.045em; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
+
+.filters { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { padding: 8px 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); font-size: .82rem; font-weight: 600; }
+.filters button:hover { border-color: var(--accent); color: var(--accent); }
+.filters button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.filters span { margin-left: 5px; font-family: var(--mono); font-size: .72rem; opacity: .65; }
+
+.grid { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.card { min-width: 0; display: grid; grid-template-rows: auto auto 1fr auto; gap: 8px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.card.wide { grid-column: 1 / -1; }
+.card.feature { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) 150px; grid-template-rows: auto auto 1fr auto; column-gap: 28px; }
+.card.feature .glyph { grid-column: 2; grid-row: 1 / 5; align-self: center; }
+.meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.kind { font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.date { font-family: var(--mono); font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 1.3rem; line-height: 1.2; letter-spacing: -.025em; text-wrap: balance; }
+.card.feature h2 { font-size: 1.8rem; font-weight: 800; }
+.card p { margin: 0; color: var(--muted); font-size: .9rem; }
+.open { margin-top: 6px; font-weight: 600; font-size: .85rem; color: var(--accent); }
+.glyph { width: 100%; max-width: 150px; aspect-ratio: 1; }
+.sgrid { display: grid; grid-template-columns: repeat(9, 1fr); border: 2px solid var(--ink); border-radius: 8px; overflow: hidden; width: 100%; aspect-ratio: 1; }
+.sgrid i { display: grid; place-items: center; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-style: normal; font-family: var(--display); font-weight: 800; font-size: .6rem; }
+.sgrid i:nth-child(9n+3), .sgrid i:nth-child(9n+6) { border-right: 1.5px solid var(--ink); }
+.sgrid i:nth-child(n+19):nth-child(-n+27), .sgrid i:nth-child(n+46):nth-child(-n+54) { border-bottom: 1.5px solid var(--ink); }
+.sgrid i.hot { background: var(--mint); color: #10231d; }
+.empty { margin-top: 18px; color: var(--muted); }
+footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .78rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+@media (max-width: 720px) {
+  .wrap { padding-inline: 16px; padding-block: 28px 40px; }
+  .intro { grid-template-columns: 1fr; gap: 16px; }
+  .mono { width: 52px; height: 52px; font-size: 1.2rem; }
+  .grid { grid-template-columns: 1fr; }
+  .card.feature { grid-template-columns: 1fr; }
+  .card.feature .glyph { grid-column: 1; grid-row: auto; max-width: 120px; }
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <div class="mono" aria-hidden="true">TH</div>
+    <div>
+      <h1>Tanvir Hasan</h1>
+      <p class="lede">AI and Big Data student at Woosong University, Seoul. A running list of things I have built: games, tools and research write-ups.</p>
+    </div>
+  </header>
+
+  <nav class="filters" id="filters" aria-label="Filter by type"></nav>
+  <main class="grid" id="grid"></main>
+  <p class="empty" id="empty" hidden>Nothing in this category yet.</p>
+
+  <footer><span id="count"></span><span>Updated <span id="updated"></span></span></footer>
+</div>
+
+<script>
+(() => {
+  // Add new artifacts at the top of this list.
+  const ITEMS = [
+    { kind: 'Game', title: 'Fifty Grids Sudoku', date: '2026-10-12', feature: true,
+      text: 'Fifty Sudoku puzzles in five tiers, graded by the solving techniques each one needs. Notes, hints and undo. Play data decides which game comes next.',
+      url: 'sudoku.html' },
+    { kind: 'App', title: 'Tanvir', date: '2026-10-10',
+      text: 'My own app, built in versions. Version one is a note-taking system.',
+      url: 'https://claude.ai/code/artifact/1a28b865-d61e-401f-920b-b868dcb615a6' },
+    { kind: 'Research', title: 'Safe Private Fall Detection', date: '2026-10-07',
+      text: 'Full project description: safety-aware, privacy-preserving federated learning for detecting falls among elderly people.',
+      url: 'https://claude.ai/code/artifact/c24e9e51-d108-4d72-8351-95ec67cee4f6' },
+    { kind: 'Research', title: 'Safety-Aware Private FL for Fall Detection', date: '2026-10-07',
+      text: 'Project page for the federated fall-detection model.',
+      url: 'https://claude.ai/code/artifact/c8299863-40cc-46a0-a6de-ee9e1a0767dc' },
+    { kind: 'Talk', title: 'Mrs. Kim and the Safe Federated Model', date: '2026-10-07',
+      text: 'Presentation script, version 3, told through the story of one user.',
+      url: 'https://claude.ai/code/artifact/7bcbeb93-1166-4f23-b05c-abe55655e1a2' },
+    { kind: 'Talk', title: 'Fall Detection Presentation Script', date: '2026-10-07',
+      text: 'First presentation script for the safety-aware private federated learning project.',
+      url: 'https://claude.ai/code/artifact/749ca3bc-2a4a-4a8c-bba9-838ffc06aedc' }
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const kinds = ['All', ...new Set(ITEMS.map((i) => i.kind))];
+  let active = 'All';
+  const fmtDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  function sudokuGlyph() {
+    const g = document.createElement('div'); g.className = 'glyph';
+    const s = document.createElement('div'); s.className = 'sgrid'; s.setAttribute('aria-hidden', 'true');
+    const given = '006005970907301004842079351005700840080000030063008200321860597600507102078900400';
+    [...given].forEach((c, i) => { const cell = document.createElement('i'); if (c !== '0') cell.textContent = c; if (i === 40) { cell.className = 'hot'; cell.textContent = '?'; } s.append(cell); });
+    g.append(s); return g;
+  }
+
+  function render() {
+    $('#filters').replaceChildren(...kinds.map((k) => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.setAttribute('aria-pressed', String(k === active));
+      b.textContent = k;
+      const n = document.createElement('span'); n.textContent = k === 'All' ? ITEMS.length : ITEMS.filter((i) => i.kind === k).length;
+      b.append(n);
+      b.addEventListener('click', () => { active = k; render(); });
+      return b;
+    }));
+    const shown = ITEMS.filter((i) => active === 'All' || i.kind === active);
+    $('#grid').replaceChildren(...shown.map((i) => {
+      const a = document.createElement('a');
+      a.className = 'card' + (i.feature && active === 'All' ? ' feature' : '');
+      a.href = i.url; if (/^https?:/.test(i.url)) { a.target = '_blank'; a.rel = 'noopener'; }
+      const meta = document.createElement('div'); meta.className = 'meta';
+      const kind = document.createElement('span'); kind.className = 'kind'; kind.textContent = i.kind;
+      const date = document.createElement('time'); date.className = 'date'; date.dateTime = i.date; date.textContent = fmtDate(i.date);
+      meta.append(kind, date);
+      const h = document.createElement('h2'); h.textContent = i.title;
+      const p = document.createElement('p'); p.textContent = i.text;
+      const go = document.createElement('span'); go.className = 'open'; go.textContent = i.kind === 'Game' ? 'Play →' : 'Open →';
+      a.append(meta, h, p, go);
+      if (i.feature && active === 'All') a.append(sudokuGlyph());
+      return a;
+    }));
+    const plain = [...$('#grid').children].filter((c) => !c.classList.contains('feature'));
+    if (plain.length % 2) plain.at(-1).classList.add('wide');
+    $('#empty').hidden = shown.length > 0;
+    $('#count').textContent = `${ITEMS.length} artifacts`;
+    $('#updated').textContent = fmtDate(ITEMS.map((i) => i.date).sort().at(-1));
+  }
+  render();
+})();
+</script>
+
+</body>
+</html>
