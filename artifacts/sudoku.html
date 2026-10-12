@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Fifty Grids Sudoku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: one column; level map of 5 tier rows, or a board with controls beside it (stacked on phones). */
+:root {
+  --bg: #f1f5ee;
+  --surface: #ffffff;
+  --sunk: #e8eee4;
+  --ink: #10231d;
+  --muted: #5f706a;
+  --line: #d3dbd2;
+  --grid: #10231d;
+  --accent: #0b6b4f;
+  --accent-ink: #ffffff;
+  --mint: #c8f36a;
+  --mint-soft: #e6f7c2;
+  --peer: #edf2e9;
+  --warn: #c2411f;
+  --warn-soft: #fde9df;
+  --heat: #f27946;
+  --hint: #8a5a00;
+  --shadow: 0 18px 50px rgba(23, 54, 43, .10);
+  --display: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --body: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1714; --surface: #15211d; --sunk: #1b2925; --ink: #e6efe9; --muted: #93a59e; --line: #2b3b35;
+  --grid: #c8d8cf; --accent: #6fd3a8; --accent-ink: #082018; --mint: #3f5f1d; --mint-soft: #23361c; --peer: #1a2723;
+  --warn: #ff8a66; --warn-soft: #3a1f17; --heat: #f2915f; --hint: #e7b65a; --shadow: 0 18px 50px rgba(0,0,0,.35); color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0d1714; --surface: #15211d; --sunk: #1b2925; --ink: #e6efe9; --muted: #93a59e; --line: #2b3b35;
+  --grid: #c8d8cf; --accent: #6fd3a8; --accent-ink: #082018; --mint: #3f5f1d; --mint-soft: #23361c; --peer: #1a2723;
+  --warn: #ff8a66; --warn-soft: #3a1f17; --heat: #f2915f; --hint: #e7b65a; --shadow: 0 18px 50px rgba(0,0,0,.35); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; }
+button { font: inherit; cursor: pointer; border: 0; color: inherit; background: none; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 40px; }
+
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; letter-spacing: -.03em; font-size: 1.05rem; }
+.mark { width: 30px; height: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 4px; background: var(--accent); border-radius: 8px; }
+.mark i { background: var(--accent-ink); border-radius: 1px; opacity: .9; }
+.mark i:nth-child(2n) { opacity: .35; }
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--sunk); border-radius: 12px; }
+.tabs button { padding: 8px 12px; border-radius: 9px; font-size: .82rem; font-weight: 700; color: var(--muted); }
+.tabs button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+.hero { margin-top: 40px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 40px; align-items: end; }
+.hero h1 { margin: 0; font-family: var(--display); font-size: clamp(2.6rem, 6vw, 4.8rem); line-height: .95; letter-spacing: -.065em; text-wrap: balance; }
+.hero h1 span { color: var(--accent); }
+.hero p { margin: 0 0 16px; color: var(--muted); line-height: 1.6; max-width: 46ch; }
+.meter { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.meter strong { font-family: var(--display); font-size: 2rem; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.meter span { color: var(--muted); font-size: .85rem; }
+.bar { flex-basis: 100%; height: 8px; margin-top: 6px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .4s ease; }
+
+.tiers { margin-top: 36px; display: grid; gap: 12px; }
+.tier { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 22px; align-items: center; padding: 20px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+.tier h2 { margin: 0; font-family: var(--display); font-size: 1.3rem; letter-spacing: -.04em; }
+.eyebrow { margin: 0 0 6px; color: var(--accent); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.dots { margin-top: 7px; display: flex; gap: 4px; }
+.dots i { width: 8px; height: 8px; border-radius: 2px; background: var(--sunk); }
+.dots i.on { background: var(--heat); }
+.small { margin: 6px 0 0; color: var(--muted); font-size: .75rem; }
+.levels { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 7px; }
+.lv { position: relative; aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); font-family: var(--display); font-weight: 800; font-variant-numeric: tabular-nums; }
+.lv:hover:not(:disabled) { background: var(--mint-soft); color: var(--accent); }
+.lv.done { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.lv.done::after { content: '✓'; position: absolute; top: 3px; right: 6px; font-size: .58rem; }
+.lv.now { box-shadow: 0 0 0 3px var(--mint); border-color: var(--accent); }
+.lv.saved::before { content: ''; position: absolute; bottom: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--heat); }
+.lv:disabled { color: var(--muted); opacity: .45; border-style: dashed; cursor: not-allowed; }
+.note { margin-top: 18px; color: var(--muted); font-size: .74rem; line-height: 1.5; max-width: 80ch; }
+
+/* game */
+.gtop { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; padding-block: 24px 18px; border-bottom: 1px solid var(--line); }
+.link { color: var(--accent); font-weight: 700; font-size: .85rem; padding: 6px 0; }
+.gtitle { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.gtitle h2 { margin: 0; font-family: var(--display); font-size: 1.6rem; letter-spacing: -.05em; }
+.chip { padding: 5px 10px; border-radius: 99px; background: var(--mint-soft); color: var(--accent); font-size: .72rem; font-weight: 700; }
+.stats { display: flex; gap: 16px; color: var(--muted); font-size: .78rem; }
+.stats b { color: var(--ink); font-family: var(--mono); font-size: .95rem; margin-right: 3px; font-variant-numeric: tabular-nums; }
+.glayout { margin-top: 24px; display: grid; grid-template-columns: minmax(0, 540px) minmax(0, 320px); gap: 44px; justify-content: center; align-items: start; }
+.board { width: 100%; max-width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr); background: var(--surface); border: 2.5px solid var(--grid); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: manipulation; }
+.cell { position: relative; min-width: 0; display: grid; place-items: center; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--accent); font-family: var(--display); font-weight: 700; font-size: clamp(1.1rem, 4.4vw, 1.8rem); font-variant-numeric: tabular-nums; }
+.cell.c3, .cell.c6 { border-right: 2px solid var(--grid); }
+.cell.c9 { border-right: 0; }
+.cell.r3, .cell.r6 { border-bottom: 2px solid var(--grid); }
+.cell.r9 { border-bottom: 0; }
+.cell.given { color: var(--ink); font-weight: 800; }
+.cell.peer { background: var(--peer); }
+.cell.same { background: var(--mint-soft); }
+.cell.sel { background: var(--mint); }
+.cell.bad { color: var(--warn); background: var(--warn-soft); }
+.cell.hinted { color: var(--hint); }
+.notes { position: absolute; inset: 2px; display: grid; grid-template-columns: repeat(3, 1fr); }
+.notes span { display: grid; place-items: center; color: var(--muted); font-family: var(--body); font-size: clamp(.48rem, 1.5vw, .66rem); font-weight: 600; line-height: 1; }
+.notes span.hl { color: var(--accent); font-weight: 800; }
+.controls { display: grid; gap: 14px; }
+.tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.tool { display: grid; justify-items: center; gap: 3px; padding: 11px 4px 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: .72rem; font-weight: 700; }
+.tool span { font-size: 1.15rem; line-height: 1; }
+.tool em { font-style: normal; color: var(--muted); font-weight: 500; }
+.tool:hover { background: var(--mint-soft); color: var(--accent); }
+.tool[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tool[aria-pressed="true"] em { color: var(--bg); opacity: .7; }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.num { position: relative; aspect-ratio: 1.35; max-width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-family: var(--display); font-weight: 800; font-size: 1.55rem; }
+.num:hover { background: var(--accent); color: var(--accent-ink); }
+.num small { position: absolute; right: 7px; bottom: 4px; font-family: var(--body); font-size: .6rem; color: var(--muted); }
+.num.gone { opacity: .3; }
+.restart { justify-self: start; color: var(--accent); font-weight: 700; font-size: .8rem; }
+.restart.armed { color: var(--warn); }
+.keys { margin: 0; color: var(--muted); font-size: .7rem; line-height: 1.5; }
+
+/* dialogs */
+.veil { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: rgba(8, 20, 16, .5); }
+.card { width: min(440px, 100%); padding: 28px; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); }
+.card h2 { margin: 0; font-family: var(--display); font-size: 1.7rem; letter-spacing: -.05em; text-wrap: balance; }
+.trio { margin: 20px 0; display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line); }
+.trio div { padding: 14px 0; text-align: center; }
+.trio div + div { border-left: 1px solid var(--line); }
+.trio strong { display: block; font-family: var(--display); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.trio span { color: var(--muted); font-size: .72rem; }
+.q { margin: 0 0 9px; font-weight: 700; font-size: .85rem; }
+.choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.choices.two { grid-template-columns: repeat(2, 1fr); }
+.choices button { padding: 10px 6px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); font-size: .8rem; font-weight: 600; }
+.choices button:hover { color: var(--accent); background: var(--mint-soft); }
+.choices button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.actions { margin-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.primary { padding: 12px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.primary:disabled { opacity: .45; cursor: default; }
+.card input { width: 100%; margin-top: 6px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); color: var(--ink); font: inherit; }
+.card label { display: block; margin-top: 16px; font-size: .78rem; font-weight: 700; }
+.lead { margin: 8px 0 16px; color: var(--muted); line-height: 1.5; font-size: .9rem; }
+
+/* insights */
+.ins-head { margin-top: 36px; }
+.ins-head h1 { margin: 0; font-family: var(--display); font-size: clamp(2rem, 4.5vw, 3.2rem); letter-spacing: -.06em; }
+.ins-head p { margin: 8px 0 0; color: var(--muted); max-width: 70ch; line-height: 1.55; }
+.tiles { margin-top: 22px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.tiles article { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.tiles strong { display: block; font-family: var(--display); font-size: 1.8rem; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.tiles span { color: var(--muted); font-size: .75rem; }
+.pair { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.panel { min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.panel h3 { margin: 0; font-family: var(--display); font-size: 1.05rem; letter-spacing: -.03em; }
+.panel .small { margin-bottom: 14px; }
+.rows { display: grid; gap: 10px; }
+.rowtop { display: flex; justify-content: space-between; gap: 10px; font-size: .8rem; }
+.rowtop strong { font-size: .75rem; font-variant-numeric: tabular-nums; }
+.track { margin-top: 5px; height: 8px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.track i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { padding: 7px 9px; text-align: left; color: var(--muted); font-size: .68rem; border-bottom: 1px solid var(--line); }
+td { padding: 7px 9px; border-bottom: 1px solid var(--line); }
+tr.warn td { background: var(--warn-soft); }
+.empty { color: var(--muted); font-size: .85rem; margin: 0; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; gap: 18px; margin-top: 28px; }
+  .tier { grid-template-columns: 1fr; gap: 14px; }
+  .glayout { grid-template-columns: minmax(0, 540px); }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pair { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .wrap { padding-inline: 16px; padding-block: 18px 32px; }
+  .levels { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .glayout { margin-top: 16px; gap: 16px; }
+  .pad { grid-template-columns: repeat(9, 1fr); gap: 4px; }
+  .num { aspect-ratio: .8; font-size: 1.25rem; border-radius: 9px; }
+  .num small { left: 0; right: 0; bottom: 2px; text-align: center; font-size: .55rem; }
+  .keys { display: none; }
+  .tier { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Fifty Grids</div>
+    <nav class="tabs" id="tabs" hidden aria-label="Views">
+      <button type="button" id="tab-play" aria-pressed="true">Play</button>
+      <button type="button" id="tab-ins" aria-pressed="false">Player data</button>
+    </nav>
+  </header>
+
+  <section id="map">
+    <div class="hero">
+      <h1>Fifty grids.<br><span>Five tiers.</span></h1>
+      <div>
+        <p>Each tier has ten puzzles that get harder as you go. Solve one to unlock the next in its tier.</p>
+        <div class="meter"><strong id="done-count">0</strong><span>/ 50 solved</span><div class="bar"><i id="done-bar"></i></div></div>
+      </div>
+    </div>
+    <div class="tiers" id="tiers"></div>
+    <p class="note" id="data-note">Gameplay (time, mistakes, hints, ratings) is saved anonymously to help choose the next game.</p>
+  </section>
+
+  <section id="game" hidden>
+    <div class="gtop">
+      <button type="button" class="link" id="back">← All levels</button>
+      <div class="gtitle"><h2 id="g-title">Level 1</h2><span class="chip" id="g-tier">Tier 1</span></div>
+      <div class="stats"><span><b id="s-time">0:00</b>time</span><span><b id="s-miss">0</b>mistakes</span><span><b id="s-hint">0</b>hints</span></div>
+    </div>
+    <div class="glayout">
+      <div class="board" id="board" role="grid" aria-label="Sudoku board" tabindex="0"></div>
+      <div class="controls">
+        <div class="tools">
+          <button type="button" class="tool" id="t-undo"><span aria-hidden="true">↶</span>Undo</button>
+          <button type="button" class="tool" id="t-erase"><span aria-hidden="true">⌫</span>Erase</button>
+          <button type="button" class="tool" id="t-notes" aria-pressed="false"><span aria-hidden="true">✎</span>Notes <em id="notes-st">off</em></button>
+          <button type="button" class="tool" id="t-hint"><span aria-hidden="true">✦</span>Hint</button>
+        </div>
+        <div class="pad" id="pad" aria-label="Number pad"></div>
+        <button type="button" class="restart" id="t-restart">Restart puzzle</button>
+        <p class="keys">Keyboard: arrows move · 1–9 place · N notes · Backspace erase · Ctrl+Z undo</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="insights" hidden>
+    <div class="ins-head">
+      <p class="eyebrow">Only you see this</p>
+      <h1>Who plays, and where they stop</h1>
+      <p>Built from every signed-in player's record. Levels highlighted in orange lose at least half the people who start them.</p>
+    </div>
+    <div class="tiles" id="i-tiles"></div>
+    <div class="pair">
+      <article class="panel"><h3>Next game votes</h3><p class="small">One vote per player.</p><div class="rows" id="i-votes"></div></article>
+      <article class="panel"><h3>Tier funnel</h3><p class="small">Players who solved at least one puzzle in each tier.</p><div class="rows" id="i-tiers"></div></article>
+    </div>
+    <article class="panel" style="margin-top:10px"><h3>Every level</h3><p class="small">Median time, average mistakes and hints come from solved runs only.</p><div class="scroll"><table id="i-table"></table></div></article>
+  </section>
+</div>
+
+<div class="veil" id="done" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="d-title">
+    <p class="eyebrow">Solved</p>
+    <h2 id="d-title">Level 1 complete</h2>
+    <div class="trio"><div><strong id="d-time">0:00</strong><span>Time</span></div><div><strong id="d-miss">0</strong><span>Mistakes</span></div><div><strong id="d-hint">0</strong><span>Hints</span></div></div>
+    <p class="q">How did that puzzle feel?</p>
+    <div class="choices" id="rate">
+      <button type="button" data-r="too-easy">Too easy</button><button type="button" data-r="just-right">Just right</button><button type="button" data-r="too-hard">Too hard</button>
+    </div>
+    <div class="actions"><button type="button" class="link" id="d-map">All levels</button><button type="button" class="primary" id="d-next">Next puzzle →</button></div>
+  </div>
+</div>
+
+<div class="veil" id="vote" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="v-title">
+    <p class="eyebrow">One quick question</p>
+    <h2 id="v-title">What should come next?</h2>
+    <p class="lead">Pick the game you would play most. The answer decides the next update.</p>
+    <div class="choices two" id="v-opts"></div>
+    <label for="v-note">Anything else? (optional)</label>
+    <input id="v-note" type="text" maxlength="140" autocomplete="off" placeholder="A daily challenge, a timed mode…">
+    <div class="actions"><button type="button" class="link" id="v-skip">Not now</button><button type="button" class="primary" id="v-send" disabled>Send vote</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const RAW = [[1,"006005970907301004842079351005700840080000030063008200321860597600507102078900400","136245978957381624842679351215793846489126735763458219321864597694537182578912463"],[1,"710060000926300070403705026807503019300070002560401708150607203070008451000050067","715962384926384175483715926847523619391876542562491738158647293679238451234159867"],[1,"007080001890352007206174839000205008500030006100906000372491605600827094900060700","437689251891352467256174839763215948549738126128946573372491685615827394984563712"],[1,"070195048000672500020308060054230001090406080200019350030701020002584000740923010","376195248481672539529348167854237691193456782267819354938761425612584973745923816"],[1,"072400903648350071590010400000003020324000196080600000006020017430071682207006540","172468953648359271593217468765193824324785196981642735856924317439571682217836549"],[1,"000205760026300005597000002870930156000608000613054028300000617700006530061503000","438295761126347895597861342874932156259618473613754928385429617742186539961573284"],[1,"730520186600041950000000200003100627050070030871003500008000000069450008127098065","734529186682741953915836274493185627256974831871263549548617392369452718127398465"],[1,"852000070130570002007800504006485009400030007900627400301008900200053041060000783","852394176134576892697812534726485319485139267913627458341768925278953641569241783"],[1,"008137050500400018601000700900080130380541079014070005002000803140008007060795400","428137956597462318631859742975286134386541279214973685752614893149328567863795421"],[1,"904000003573901462016003005000000009002867500400000000800300950639205748700000301","984526173573981462216743895157432689392867514468159237821374956639215748745698321"],[2,"001052090708030050400700030200840005104305906500017003040003009010080504050170300","361452897798631452425798631239846715174325986586917243847563129613289574952174368"],[2,"304007002807600300005001089480005600900070005003400091130700900009006108600800407","314987562897652314265341789481295673926173845573468291138724956749536128652819437"],[2,"738269000006008070400005900860000100150000047007000052005100006010800300000926581","738269415596418273421735968862574139153692847947381652285143796619857324374926581"],[2,"000401700005029010084000200901604002800010009200705108009000840070960500006108000","692431785735829614184576293951684372867312459243795168319257846478963521526148937"],[2,"004000120090016000600820700800571064000090000470682005007035009000160070023000600","384957126792316548615824793839571264256493817471682935167235489548169372923748651"],[2,"009001070370600459005000306600800700020000080008005003807000100136004092040300500","469531278371682459285947316614893725523476981798125643857269134136754892942318567"],[2,"000007056006205000850904307000000820100702004063000000509106048000403100410500000","941387256376215489852964317794651823185732964263849571539126748628473195417598632"],[2,"305800007810203050000610000180500090000030000020007061000024000070301029400006105","365849217819273654247615938184562793796138542523497861951724386678351429432986175"],[2,"104000680009407003000800040021070009500090001300080570010008000700905300065000204","154329687689457123237816945421573869578692431396184572913248756742965318865731294"],[2,"040006000790030806056700001087060005000000000600040310100009450902050083000300020","843916572791235846256784931487163295315892764629547318138629457972451683564378129"],[3,"000025004020006010006080527081000409000000000409000650753040200090300040100670000","817925364524736918936184527281563479365497182479218653753841296698352741142679835"],[3,"170400305460000020038700000043000000900203007000000630000005970090000064304006058","179462385465839721238751496843697512956213847721584639682145973597328164314976258"],[3,"100002030702530900004000500300080610000301000041050003006000300003068407020700006","165492738782536941934817562397284615658371294241659873476125389513968427829743156"],[3,"904008700710000200030160009400905000000080000000406007600014030008000072007800104","954238716716549283832167459463975821279381645581426397625714938148693572397852164"],[3,"019200400200070010046900030900100050000000000070006008020008340030010009001002760","519263487283574916746981532968137254154829673372456198625798341437615829891342765"],[3,"030500086000000000000067350390008002100702003200600074081230000000000000520006010","739521486615384729842967351397148562164752893258693174981235647476819235523476918"],[3,"000000408004009150800020060058703600000000000003604570080040003046300900701000000","562137498374869152819425367458793621697512834123684579985246713246371985731958246"],[3,"000800900180600050203010000010700009004308100300001060000080605030007041005002000","456873912187629453293415876512746389964358127378291564721984635839567241645132798"],[3,"040800093008000107075001840000036000000000000000120000014200950802000400360004070","146872593238459167975361842481936725523748619697125384714283956852697431369514278"],[3,"000805900018200306000060000409000703000000000703000208000050000305002840002109000","236815974918247356574963182469528713821736495753491268187354629395672841642189537"],[4,"007005000069870040500000180000086000050431070000520000036000009090058430000700800","387145926169872543524369187473986215952431678618527394836214759791658432245793861"],[4,"400300706390800100010050000806000200000602000001000409000030040004009051509008002","485321796397846125612957384856194273943672518721583469168235947234769851579418632"],[4,"000010060000906270100043500090000008403000607800000020008160002049208000030070000","987512463354986271162743589795624138423891657816357924578169342649238715231475896"],[4,"000005620700000019004100000040030250005407800076080040000009100420000003087300000","831975624752864319694123785948631257215497836376582941563249178429718563187356492"],[4,"000000309040210700000603000061000095200090006590000270000506000009028050702000000","826457319345219768917683542461372895278195436593864271184536927639728154752941683"],[4,"500008001016030002000004000057300000230080064000002790000900000600020410300800009","524678931716539842983214657457396128239187564861452793172945386698723415345861279"],[4,"800569000060000100000400060046800010001000900050007630020004000005000070000695003","812569347764328159539471268946853712371246985258917634623784591495132876187695423"],[4,"000003405500009007000002010001600030008307600060008900050800000200900003903500000","819763425542189367637452819791645238428397651365218974154836792286971543973524186"],[4,"000095402100000000040007093008600000300020004000003100420700030000000009906380000","637895412189432567542167893798641325361528974254973186425719638813256749976384251"],[4,"500000038008006200000080005009407000400000007000203600100040000006500400820000009","567124938398756241241389765689417523432865197715293684153942876976538412824671359"],[5,"050300000006074000300005090064100005003000200900006710080500002000980100000002040","851369427296874531347215698764123985513798264928456713689541372432987156175632849"],[5,"004000007000870400205000030610030009000080000700040023040000301006097000300000700","864953217931872456275461938612735849493286175758149623547628391126397584389514762"],[5,"000030700000280400308000050067000000020653070000000210050000301002071000001090000","246135789915287463378469152867912534124653978593748216759826341482371695631594827"],[5,"002007090907000010800040200000700039000060000170009000006050004020000506050300900","542617893967283415813945267685724139239561748174839652796152384321498576458376921"],[5,"600010090000000730005034100030000000200861009000000020009720600024000000060090001","683517492142689735975234168836942517257861349491375826319728654724156983568493271"],[5,"030046800960000030005000070400060500000070000007020008080000300050000024002510080","731246859968157432245389671423861597816975243597423168684792315159638724372514986"],[5,"700084009030001000001000700980200000010000080000005076004000600000500040500420008","762384519439751862851692734987236451615947283243815976394178625128569347576423198"],[5,"000017090000000000304009005710004050400000002060300019200800903000000000040960000","625417398197538624384629175713294856459186732862375419276851943938742561541963287"],[5,"060000000008690002920070000500000700000364000002000009000040016700013900000000050","467832591318695472925471638584129763179364825632758149893547216756213984241986357"],[5,"007400090080002000000050400800000057003060100120000004001070000000600070030004200","517436892684192735392758416869241357473965128125387964251879643948623571736514289"]];
+  const P = RAW.map(([tier, puzzle, solution], i) => ({ id: i + 1, tier, puzzle, solution, clues: [...puzzle].filter((c) => c !== '0').length }));
+  const $ = (s) => document.querySelector(s);
+  const ls = {
+    get(k, f) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch { return f; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const fmt = (ms) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+  // ---------- per-player record (one db document per player) ----------
+  let db = null, uid = null, canTrack = false, writing = false, dirty = false, writeTimer = null;
+  const today = () => new Date().toISOString().slice(0, 10);
+  const rec = ls.get('fg.rec', null) || { v: 1, firstSeen: new Date().toISOString(), days: [], hours: {}, sessions: 0, levels: {}, vote: null };
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  rec.device = coarse ? (Math.min(screen.width, screen.height) < 600 ? 'phone' : 'tablet') : 'desktop';
+  rec.sessions = (rec.sessions || 0) + 1;
+  rec.lastSeen = new Date().toISOString();
+  if (!rec.days.includes(today())) rec.days = rec.days.concat(today()).slice(-60);
+  const h = String(new Date().getHours()); rec.hours[h] = (rec.hours[h] || 0) + 1;
+
+  function L(id) { return (rec.levels[id] ||= { starts: 0, completes: 0, abandons: 0, restarts: 0, times: [], mistakes: [], hints: [], rating: null }); }
+  function pushCap(arr, v) { arr.push(v); if (arr.length > 10) arr.shift(); }
+  function touchRec() {
+    rec.lastSeen = new Date().toISOString();
+    ls.set('fg.rec', rec);
+    dirty = true;
+    clearTimeout(writeTimer);
+    writeTimer = setTimeout(writeRec, 1500);
+  }
+  async function writeRec() {
+    if (!canTrack || writing || !dirty) return;
+    writing = true; dirty = false;
+    try { await db.doc('plays/' + uid).set(JSON.parse(JSON.stringify(rec))); }
+    catch (e) { if (e && (e.code === 'invalid_argument' || e.code === 'not_granted' || e.code === 'revoked' || e.code === 'quota_exceeded')) canTrack = false; else dirty = true; }
+    writing = false;
+    if (dirty) writeTimer = setTimeout(writeRec, 3000);
+  }
+
+  // ---------- progress (completions also live in rec) ----------
+  const prog = Object.assign({ best: {}, saves: {}, voted: false, skips: 0 }, ls.get('fg.prog', {}));
+  for (const [id, l] of Object.entries(rec.levels)) if (l.completes && !prog.best[id]) prog.best[id] = { ms: l.times.at(-1) || 0 };
+  const saveProg = () => ls.set('fg.prog', prog);
+  const done = (id) => Boolean(prog.best[id]);
+  const open = (p) => (p.id - 1) % 10 === 0 || done(p.id - 1);
+
+  // ---------- map ----------
+  function renderMap() {
+    const box = $('#tiers'); box.replaceChildren();
+    for (let t = 1; t <= 5; t++) {
+      const list = P.filter((p) => p.tier === t);
+      const card = document.createElement('article'); card.className = 'tier';
+      const head = document.createElement('div');
+      head.innerHTML = `<p class="eyebrow">Levels ${list[0].id}–${list[9].id}</p><h2>Tier ${t}</h2><div class="dots" aria-label="Difficulty ${t} of 5">${[1,2,3,4,5].map((d) => `<i class="${d <= t ? 'on' : ''}"></i>`).join('')}</div><p class="small">${list.filter((p) => done(p.id)).length} of 10 solved</p>`;
+      const row = document.createElement('div'); row.className = 'levels';
+      let marked = false;
+      for (const p of list) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'lv'; b.textContent = p.id;
+        const o = open(p);
+        if (done(p.id)) b.classList.add('done'); else if (o && !marked) { b.classList.add('now'); marked = true; }
+        if (prog.saves[p.id] && !done(p.id)) b.classList.add('saved');
+        b.disabled = !o;
+        b.setAttribute('aria-label', `Level ${p.id}${done(p.id) ? ', solved' : o ? '' : ', locked'}`);
+        b.addEventListener('click', () => start(p.id));
+        row.append(b);
+      }
+      card.append(head, row); box.append(card);
+    }
+    const n = Object.keys(prog.best).length;
+    $('#done-count').textContent = n;
+    $('#done-bar').style.width = `${n * 2}%`;
+  }
+
+  // ---------- game ----------
+  const R = (i) => Math.floor(i / 9), C = (i) => i % 9, B = (i) => Math.floor(R(i) / 3) * 3 + Math.floor(C(i) / 3);
+  const PEERS = Array.from({ length: 81 }, (_, i) => { const o = []; for (let j = 0; j < 81; j++) if (j !== i && (R(j) === R(i) || C(j) === C(i) || B(j) === B(i))) o.push(j); return o; });
+  const cells = [], nums = [];
+  let g = null, sel = -1, notesOn = false, clock = null, last = 0;
+
+  function build() {
+    const board = $('#board');
+    for (let i = 0; i < 81; i++) {
+      const c = document.createElement('div');
+      c.className = `cell r${R(i) + 1} c${C(i) + 1}`; c.setAttribute('role', 'gridcell');
+      c.addEventListener('pointerdown', (e) => { e.preventDefault(); sel = i; draw(); board.focus({ preventScroll: true }); });
+      cells.push(c); board.append(c);
+    }
+    for (let d = 1; d <= 9; d++) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'num';
+      b.innerHTML = `${d}<small></small>`; b.setAttribute('aria-label', `Enter ${d}`);
+      b.addEventListener('click', () => put(d)); nums.push(b); $('#pad').append(b);
+    }
+  }
+
+  function start(id, resume) {
+    const p = P[id - 1];
+    const s = resume || prog.saves[id];
+    g = {
+      id, tier: p.tier,
+      given: [...p.puzzle].map((c) => c !== '0'), sol: [...p.solution].map(Number),
+      val: s ? s.val.slice() : [...p.puzzle].map(Number), notes: s ? s.notes.slice() : Array(81).fill(0),
+      hinted: s ? s.hinted.slice() : [], miss: s ? s.miss : 0, hints: s ? s.hints : 0, ms: s ? s.ms : 0,
+      hist: [], touched: Boolean(s), over: false
+    };
+    if (!s) { L(id).starts++; touchRec(); }
+    sel = g.val.indexOf(0); notesOn = false; setNotes(false);
+    $('#g-title').textContent = `Level ${id}`; $('#g-tier').textContent = `Tier ${p.tier}`;
+    disarm();
+    show('game'); draw(); tick(); scrollTo({ top: 0 });
+  }
+
+  function saveGame() {
+    if (!g || g.over) return;
+    prog.saves[g.id] = { val: g.val, notes: g.notes, hinted: g.hinted, miss: g.miss, hints: g.hints, ms: Math.round(g.ms) };
+    saveProg();
+  }
+  function leave() {
+    if (!g) return;
+    clearInterval(clock);
+    if (!g.over) { saveGame(); if (g.touched) { L(g.id).abandons++; touchRec(); } }
+    g = null; show('map'); renderMap();
+  }
+  function tick() {
+    clearInterval(clock); last = performance.now();
+    clock = setInterval(() => {
+      const now = performance.now();
+      if (g && !g.over && document.visibilityState === 'visible') g.ms += Math.min(now - last, 2000);
+      last = now; if (g) $('#s-time').textContent = fmt(g.ms);
+    }, 500);
+  }
+  const snap = () => { g.hist.push({ val: g.val.slice(), notes: g.notes.slice() }); if (g.hist.length > 200) g.hist.shift(); };
+  const solved = (i) => g.val[i] && g.val[i] === g.sol[i];
+
+  function put(d) {
+    if (!g || g.over || sel < 0 || g.given[sel] || solved(sel)) return;
+    if (notesOn && g.val[sel]) return;
+    g.touched = true; snap();
+    if (notesOn) g.notes[sel] ^= 1 << d;
+    else if (g.val[sel] === d) g.val[sel] = 0;
+    else {
+      g.val[sel] = d; g.notes[sel] = 0;
+      if (d !== g.sol[sel]) g.miss++; else for (const j of PEERS[sel]) g.notes[j] &= ~(1 << d);
+    }
+    draw(); saveGame(); check();
+  }
+  function erase() {
+    if (!g || g.over || sel < 0 || g.given[sel] || solved(sel) || (!g.val[sel] && !g.notes[sel])) return;
+    snap(); g.val[sel] = 0; g.notes[sel] = 0; draw(); saveGame();
+  }
+  function undo() { if (!g || g.over) return; const p = g.hist.pop(); if (!p) return; g.val = p.val; g.notes = p.notes; draw(); saveGame(); }
+  function hint() {
+    if (!g || g.over) return;
+    let i = sel;
+    if (i < 0 || g.given[i] || solved(i)) {
+      const open = g.val.map((v, k) => (v === g.sol[k] ? -1 : k)).filter((k) => k >= 0);
+      if (!open.length) return; i = open[Math.floor(Math.random() * open.length)];
+    }
+    snap(); g.touched = true; g.val[i] = g.sol[i]; g.notes[i] = 0;
+    for (const j of PEERS[i]) g.notes[j] &= ~(1 << g.sol[i]);
+    g.hinted.push(i); g.hints++; sel = i; draw(); saveGame(); check();
+  }
+  let armed = false, armTimer = null;
+  function disarm() { armed = false; clearTimeout(armTimer); const b = $('#t-restart'); b.textContent = 'Restart puzzle'; b.classList.remove('armed'); }
+  function restart() {
+    if (!g || g.over) return;
+    if (g.touched && !armed) {
+      armed = true; const b = $('#t-restart'); b.textContent = 'Tap again to clear the board'; b.classList.add('armed');
+      armTimer = setTimeout(disarm, 4000); return;
+    }
+    disarm(); L(g.id).restarts++; touchRec();
+    delete prog.saves[g.id]; saveProg(); const id = g.id; g = null; start(id);
+  }
+  function setNotes(on) { notesOn = on; $('#t-notes').setAttribute('aria-pressed', String(on)); $('#notes-st').textContent = on ? 'on' : 'off'; }
+
+  function draw() {
+    if (!g) return;
+    const sv = sel >= 0 ? g.val[sel] : 0;
+    const count = Array(10).fill(0); g.val.forEach((v, i) => { if (v && v === g.sol[i]) count[v]++; });
+    for (let i = 0; i < 81; i++) {
+      const c = cells[i], v = g.val[i];
+      const k = ['cell', `r${R(i) + 1}`, `c${C(i) + 1}`];
+      if (g.given[i]) k.push('given');
+      if (v && !g.given[i] && v !== g.sol[i]) k.push('bad');
+      if (g.hinted.includes(i)) k.push('hinted');
+      if (i === sel) k.push('sel'); else if (sv && v === sv) k.push('same'); else if (sel >= 0 && PEERS[sel].includes(i)) k.push('peer');
+      c.className = k.join(' ');
+      if (v) c.textContent = v;
+      else if (g.notes[i]) {
+        const n = document.createElement('span'); n.className = 'notes';
+        for (let d = 1; d <= 9; d++) { const s = document.createElement('span'); if (g.notes[i] & (1 << d)) { s.textContent = d; if (d === sv) s.className = 'hl'; } n.append(s); }
+        c.replaceChildren(n);
+      } else c.textContent = '';
+      c.setAttribute('aria-label', `Row ${R(i) + 1}, column ${C(i) + 1}: ${v || 'empty'}`);
+    }
+    nums.forEach((b, k) => { const left = 9 - count[k + 1]; b.classList.toggle('gone', !left); b.querySelector('small').textContent = left || ''; });
+    $('#s-miss').textContent = g.miss; $('#s-hint').textContent = g.hints; $('#s-time').textContent = fmt(g.ms);
+  }
+
+  function check() {
+    if (!g.val.every((v, i) => v === g.sol[i])) return;
+    g.over = true; clearInterval(clock);
+    const ms = Math.round(g.ms);
+    const l = L(g.id); l.completes++; pushCap(l.times, ms); pushCap(l.mistakes, g.miss); pushCap(l.hints, g.hints); touchRec();
+    if (!prog.best[g.id] || prog.best[g.id].ms > ms) prog.best[g.id] = { ms };
+    delete prog.saves[g.id]; saveProg();
+    rated = g.id;
+    $('#d-title').textContent = `Level ${g.id} complete`;
+    $('#d-time').textContent = fmt(ms); $('#d-miss').textContent = g.miss; $('#d-hint').textContent = g.hints;
+    document.querySelectorAll('#rate button').forEach((b) => b.classList.remove('on'));
+    $('#d-next').hidden = g.id >= 50;
+    setTimeout(() => { $('#done').hidden = false; $('#d-next').focus(); }, 400);
+  }
+
+  let rated = null;
+  $('#rate').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-r]'); if (!b || !rated) return;
+    document.querySelectorAll('#rate button').forEach((x) => x.classList.toggle('on', x === b));
+    L(rated).rating = b.dataset.r; touchRec();
+  });
+  function after(next) {
+    $('#done').hidden = true;
+    const id = rated, n = Object.keys(prog.best).length;
+    const ask = !prog.voted && prog.skips < 3 && (n === 3 || id % 10 === 0 || (n > 3 && n % 8 === 0));
+    const go = () => { if (next && id < 50) { g = null; start(id + 1); } else { g = null; leave(); show('map'); renderMap(); } };
+    ask ? askVote(go) : go();
+  }
+  $('#d-next').addEventListener('click', () => after(true));
+  $('#d-map').addEventListener('click', () => after(false));
+
+  // ---------- vote ----------
+  const GAMES = [['minesweeper', 'Minesweeper'], ['2048', '2048'], ['kakuro', 'Kakuro'], ['killer-sudoku', 'Killer Sudoku'], ['nonogram', 'Nonogram'], ['word-puzzle', 'Word puzzle'], ['chess-puzzles', 'Chess puzzles'], ['memory-match', 'Memory match']];
+  const NAMES = Object.fromEntries(GAMES.concat([['other', 'Something else']]));
+  let pick = null, then = null;
+  function askVote(cb) {
+    then = cb; pick = null;
+    const box = $('#v-opts'); box.replaceChildren();
+    for (const [k, label] of [...GAMES].sort(() => Math.random() - .5).concat([['other', 'Something else']])) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+      b.addEventListener('click', () => { pick = k; box.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); $('#v-send').disabled = false; });
+      box.append(b);
+    }
+    $('#v-note').value = ''; $('#v-send').disabled = true; $('#vote').hidden = false;
+  }
+  function closeVote() { $('#vote').hidden = true; const t = then; then = null; if (t) t(); }
+  $('#v-skip').addEventListener('click', () => { prog.skips++; saveProg(); closeVote(); });
+  $('#v-send').addEventListener('click', () => {
+    if (!pick) return;
+    rec.vote = { choice: pick, note: $('#v-note').value.trim().slice(0, 140) || null, solved: Object.keys(prog.best).length, at: new Date().toISOString() };
+    prog.voted = true; saveProg(); touchRec(); writeRec(); closeVote();
+  });
+
+  // ---------- views ----------
+  function show(v) {
+    $('#map').hidden = v !== 'map'; $('#game').hidden = v !== 'game'; $('#insights').hidden = v !== 'ins';
+    $('#tab-play').setAttribute('aria-pressed', String(v !== 'ins')); $('#tab-ins').setAttribute('aria-pressed', String(v === 'ins'));
+  }
+  $('#back').addEventListener('click', leave);
+  $('#t-undo').addEventListener('click', undo); $('#t-erase').addEventListener('click', erase);
+  $('#t-notes').addEventListener('click', () => setNotes(!notesOn)); $('#t-hint').addEventListener('click', hint);
+  $('#t-restart').addEventListener('click', restart);
+  $('#tab-play').addEventListener('click', () => { show(g ? 'game' : 'map'); if (!g) renderMap(); });
+  $('#tab-ins').addEventListener('click', () => { if (g) { clearInterval(clock); saveGame(); g = null; } show('ins'); });
+
+  document.addEventListener('keydown', (e) => {
+    if (!g || $('#game').hidden || !$('#done').hidden || !$('#vote').hidden || e.target instanceof HTMLInputElement) return;
+    const k = e.key;
+    const mv = (dr, dc) => { sel = sel < 0 ? 0 : ((R(sel) + dr + 9) % 9) * 9 + (C(sel) + dc + 9) % 9; draw(); };
+    if (/^[1-9]$/.test(k)) put(+k);
+    else if (k === 'Backspace' || k === 'Delete' || k === '0') erase();
+    else if (k === 'ArrowUp') mv(-1, 0); else if (k === 'ArrowDown') mv(1, 0);
+    else if (k === 'ArrowLeft') mv(0, -1); else if (k === 'ArrowRight') mv(0, 1);
+    else if ((e.ctrlKey || e.metaKey) && k.toLowerCase() === 'z') undo();
+    else if (k.toLowerCase() === 'n') setNotes(!notesOn);
+    else return;
+    e.preventDefault();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { saveGame(); writeRec(); } });
+
+  // ---------- owner insights ----------
+  const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  const avg = (a) => (a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length * 10) / 10 : null);
+  const dash = (v, s = '') => (v === null || v === undefined ? '—' : v + s);
+  function bar(label, value, max, detail) {
+    const w = max ? Math.max(2, value / max * 100) : 0;
+    const d = document.createElement('div');
+    d.innerHTML = `<div class="rowtop"><span></span><strong></strong></div><div class="track"><i style="width:${w}%"></i></div>`;
+    d.querySelector('span').textContent = label; d.querySelector('strong').textContent = detail ?? value;
+    return d;
+  }
+  function renderInsights(docs) {
+    const players = docs.map((d) => d.data()).filter(Boolean);
+    const returning = players.filter((p) => (p.days || []).length > 1).length;
+    const furthest = players.map((p) => Math.max(0, ...Object.entries(p.levels || {}).filter(([, l]) => l.completes).map(([k]) => +k))).filter((x) => x > 0);
+    const solves = players.reduce((a, p) => a + Object.values(p.levels || {}).filter((l) => l.completes).length, 0);
+    $('#i-tiles').innerHTML = '';
+    for (const [v, l] of [[players.length, 'players'], [players.length ? Math.round(returning / players.length * 100) + '%' : '—', 'came back another day'], [solves, 'puzzles solved'], [dash(avg(furthest)), 'avg furthest level']]) {
+      const a = document.createElement('article'); a.innerHTML = '<strong></strong><span></span>';
+      a.querySelector('strong').textContent = v; a.querySelector('span').textContent = l; $('#i-tiles').append(a);
+    }
+    const votes = {}; players.forEach((p) => { if (p.vote && NAMES[p.vote.choice]) votes[p.vote.choice] = (votes[p.vote.choice] || 0) + 1; });
+    const vs = Object.entries(votes).sort((a, b) => b[1] - a[1]); const vmax = vs.length ? vs[0][1] : 0;
+    const vbox = $('#i-votes'); vbox.replaceChildren(...(vs.length ? vs.map(([k, n]) => bar(NAMES[k], n, vmax)) : [Object.assign(document.createElement('p'), { className: 'empty', textContent: 'No votes yet. Players are asked after their third solve and at the end of each tier.' })]));
+    players.filter((p) => p.vote && p.vote.note).slice(0, 6).forEach((p) => { const q = document.createElement('p'); q.className = 'small'; q.textContent = `${NAMES[p.vote.choice] || p.vote.choice}: ${p.vote.note}`; vbox.append(q); });
+    const tbox = $('#i-tiers'); tbox.replaceChildren();
+    const tierPlayers = [1, 2, 3, 4, 5].map((t) => {
+      const ids = P.filter((p) => p.tier === t).map((p) => String(p.id));
+      return { t, started: players.filter((p) => ids.some((i) => p.levels?.[i]?.starts)).length, solved: players.filter((p) => ids.some((i) => p.levels?.[i]?.completes)).length };
+    });
+    const tmax = Math.max(0, ...tierPlayers.map((x) => x.started));
+    tierPlayers.forEach((x) => tbox.append(bar(`Tier ${x.t}`, x.solved, tmax, `${x.solved} of ${x.started} solved one`)));
+    const table = $('#i-table');
+    let html = '<thead><tr><th>Level</th><th>Tier</th><th>Clues</th><th>Players</th><th>Solved</th><th>Rate</th><th>Median time</th><th>Mistakes</th><th>Hints</th><th>Quit</th><th>Easy / Right / Hard</th></tr></thead><tbody>';
+    for (const p of P) {
+      const ls_ = players.map((x) => x.levels?.[p.id]).filter(Boolean);
+      const st = ls_.filter((l) => l.starts || l.completes).length, so = ls_.filter((l) => l.completes).length;
+      const rate = st ? Math.round(so / st * 100) : null;
+      const r = { 'too-easy': 0, 'just-right': 0, 'too-hard': 0 }; ls_.forEach((l) => { if (l.rating in r) r[l.rating]++; });
+      const t = median(ls_.flatMap((l) => l.times || []));
+      html += `<tr class="${rate !== null && st >= 5 && rate < 50 ? 'warn' : ''}"><td>${p.id}</td><td>${p.tier}</td><td>${p.clues}</td><td>${st}</td><td>${so}</td><td>${dash(rate, '%')}</td><td>${t === null ? '—' : fmt(t)}</td><td>${dash(avg(ls_.flatMap((l) => l.mistakes || [])))}</td><td>${dash(avg(ls_.flatMap((l) => l.hints || [])))}</td><td>${ls_.reduce((a, l) => a + (l.abandons || 0), 0)}</td><td>${r['too-easy']} / ${r['just-right']} / ${r['too-hard']}</td></tr>`;
+    }
+    table.innerHTML = html + '</tbody>';
+  }
+
+  // ---------- boot ----------
+  build(); renderMap();
+  const hot = window.claude?.hot;
+  if (hot?.snapshot) hot.snapshot(() => (g && !g.over ? { id: g.id, s: { val: g.val, notes: g.notes, hinted: g.hinted, miss: g.miss, hints: g.hints, ms: g.ms } } : {}));
+  const boot = (data) => { if (data && data.id) start(data.id, data.s); };
+  hot?.ready ? hot.ready(boot) : boot(hot?.data ?? {});
+
+  (async () => {
+    if (!window.claude?.use) { $('#data-note').textContent = 'Progress is saved in this browser.'; return; }
+    const [d, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+    if (!d || !user) { $('#data-note').textContent = 'Progress is saved in this browser. Sign in to claude.ai to have your games counted.'; return; }
+    db = d; uid = await user.id();
+    const canWrite = await user.can('data.write');
+    canTrack = Boolean(uid) && canWrite !== false;
+    if (!canTrack) $('#data-note').textContent = 'Progress is saved in this browser. Your games are not counted because this link is view-only.';
+    else { touchRec(); }
+    if (await user.isOwner()) {
+      $('#tabs').hidden = false;
+      db.collection('plays').onSnapshot((snap) => renderInsights(snap.docs), () => {});
+    }
+  })();
+})();
+</script>
+
+</body>
+</html>
