@@ -1,0 +1,265 @@
+/* Sudoku — builds on styles.css tokens */
+
+.sudoku-shell {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 64px 0 40px;
+}
+
+.sudoku-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(32px, 6vw, 90px);
+  align-items: end;
+}
+
+.sudoku-hero h1 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(3.2rem, 6.4vw, 6.2rem);
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+}
+.sudoku-hero h1 span { color: var(--green); }
+.hero-side > p { margin: 0 0 22px; color: #384a44; font-size: 1.05rem; line-height: 1.65; }
+
+.progress-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.progress-strip strong { font-family: 'Manrope', sans-serif; font-size: 2.2rem; letter-spacing: -0.05em; }
+.progress-strip span { color: var(--muted); font-size: 0.85rem; }
+.progress-bar { flex-basis: 100%; height: 8px; margin-top: 6px; background: #e3e9e1; border-radius: 99px; overflow: hidden; }
+.progress-bar i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 99px; transition: width 400ms ease; }
+
+/* Tier list */
+.tier-list { margin-top: 56px; display: grid; gap: 16px; }
+.tier-card {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 24px 28px;
+  background: var(--card);
+  border: 1px solid rgba(16, 35, 29, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(23, 54, 43, 0.05);
+}
+.tier-head .step-label { margin-bottom: 8px; }
+.tier-head h2 { margin: 0; font-family: 'Manrope', sans-serif; font-size: 1.5rem; letter-spacing: -0.04em; }
+.tier-dots { margin-top: 8px; display: flex; gap: 4px; }
+.tier-dots i { width: 9px; height: 9px; border-radius: 3px; background: #e1e7df; }
+.tier-dots i.on { background: var(--orange); }
+.tier-count { margin-top: 8px; color: var(--muted); font-size: 0.75rem; }
+
+.level-row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 8px; }
+.level-tile {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  background: #f3f6ef;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.level-tile:hover { color: var(--green); background: var(--mint-soft); border-color: #c9e79a; }
+.level-tile.is-done { color: white; background: var(--green); border-color: var(--green); }
+.level-tile.is-done::after { content: '✓'; position: absolute; top: 4px; right: 7px; font-size: 0.62rem; opacity: 0.8; }
+.level-tile.is-current { box-shadow: 0 0 0 3px var(--mint); border-color: var(--green); }
+.level-tile.is-saved::before { content: ''; position: absolute; bottom: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--orange); }
+.level-tile:disabled { color: #b5bfba; background: #f7f8f5; border-style: dashed; cursor: not-allowed; opacity: 1; }
+.level-tile:disabled:hover { transform: none; }
+
+/* Game */
+.game-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.game-meta { display: flex; align-items: center; gap: 12px; }
+.game-meta h2 { margin: 0; font-family: 'Manrope', sans-serif; font-size: 1.7rem; letter-spacing: -0.05em; }
+.tier-chip { padding: 6px 10px; color: var(--green-dark); background: var(--mint-soft); border-radius: 99px; font-size: 0.72rem; font-weight: 700; }
+.game-stats { display: flex; gap: 18px; color: var(--muted); font-size: 0.78rem; }
+.game-stats b { color: var(--ink); font-family: ui-monospace, monospace; font-size: 0.95rem; margin-right: 3px; }
+
+.game-layout {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(260px, 340px);
+  gap: clamp(28px, 5vw, 64px);
+  justify-content: center;
+  align-items: start;
+}
+
+.board {
+  --cell-line: #cfd8d0;
+  --box-line: var(--ink);
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  background: white;
+  border: 2.5px solid var(--box-line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.cell {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  background: white;
+  border: 0;
+  border-right: 1px solid var(--cell-line);
+  border-bottom: 1px solid var(--cell-line);
+  border-radius: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(1.15rem, 4.6vw, 1.9rem);
+  font-weight: 700;
+  transition: none;
+}
+.cell:hover { background: #f4f8f1; transform: none; }
+.cell:focus-visible { outline: none; }
+.cell.c3, .cell.c6 { border-right: 2px solid var(--box-line); }
+.cell.c9 { border-right: 0; }
+.cell.r3, .cell.r6 { border-bottom: 2px solid var(--box-line); }
+.cell.r9 { border-bottom: 0; }
+.cell.given { color: var(--ink); font-weight: 800; }
+.cell.peer { background: #f1f5ee; }
+.cell.same { background: var(--mint-soft); }
+.cell.selected { background: var(--mint); }
+.cell.wrong { color: #c2411f; background: var(--orange-soft); }
+.cell.wrong.selected { background: #ffd7c5; }
+.cell.hinted { color: #8a5a00; }
+.cell.flash { animation: cellFlash 600ms ease; }
+@keyframes cellFlash { 0% { background: var(--mint); } 100% { background: inherit; } }
+
+.notes-grid { position: absolute; inset: 3px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); }
+.notes-grid span { display: grid; place-items: center; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: clamp(0.5rem, 1.6vw, 0.68rem); font-weight: 600; line-height: 1; }
+.notes-grid span.hl { color: var(--green-dark); font-weight: 800; }
+
+.controls { display: grid; gap: 18px; }
+.tool-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.tool {
+  padding: 12px 4px 10px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+}
+.tool span { font-size: 1.2rem; line-height: 1; }
+.tool em { font-style: normal; color: var(--muted); font-weight: 500; }
+.tool:hover { color: var(--green); background: var(--mint-soft); }
+.tool[aria-pressed='true'] { color: white; background: var(--ink); border-color: var(--ink); }
+.tool[aria-pressed='true'] em { color: var(--mint); }
+
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.num {
+  position: relative;
+  aspect-ratio: 1.35;
+  padding: 0;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.num:hover { color: white; background: var(--green); }
+.num small { position: absolute; right: 8px; bottom: 5px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 600; }
+.num:hover small { color: var(--mint-soft); }
+.num.used-up { opacity: 0.32; }
+
+.sub-controls { display: grid; gap: 8px; }
+.sub-controls .text-button { justify-self: start; font-size: 0.8rem; }
+.key-help { margin: 0; color: var(--muted); font-size: 0.7rem; line-height: 1.5; }
+
+/* Dialogs */
+.sd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(16, 35, 29, 0.45);
+  backdrop-filter: blur(4px);
+}
+.sd-card {
+  width: min(460px, 100%);
+  padding: clamp(24px, 4vw, 36px);
+  background: white;
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+}
+.sd-card .step-label { margin-bottom: 10px; }
+.sd-card h2 { margin: 0; font-family: 'Manrope', sans-serif; font-size: 1.8rem; letter-spacing: -0.05em; }
+
+.done-stats { margin: 24px 0; display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--line); }
+.done-stats div { padding: 16px 0; text-align: center; }
+.done-stats div + div { border-left: 1px solid var(--line); }
+.done-stats strong, .done-stats span { display: block; }
+.done-stats strong { font-family: 'Manrope', sans-serif; font-size: 1.5rem; }
+.done-stats span { color: var(--muted); font-size: 0.72rem; }
+
+.rate-q { margin: 0 0 10px; font-size: 0.85rem; font-weight: 700; }
+.rate-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rate-row button, .vote-options button {
+  padding: 11px 6px;
+  color: var(--ink);
+  background: #f3f6ef;
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+.rate-row button:hover, .vote-options button:hover { color: var(--green); background: var(--mint-soft); }
+.rate-row button.chosen, .vote-options button.chosen { color: white; background: var(--green); border-color: var(--green); }
+
+.dialog-actions { margin-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+.vote-copy { margin: 10px 0 18px; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+.vote-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.vote-note-label { margin: 18px 0 8px; }
+#vote-note { padding: 12px 14px; }
+
+.sd-privacy { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; color: var(--muted); font-size: 0.72rem; }
+
+@media (max-width: 900px) {
+  .sudoku-hero { grid-template-columns: 1fr; gap: 24px; }
+  .tier-card { grid-template-columns: 1fr; gap: 16px; }
+  .game-layout { grid-template-columns: minmax(0, 560px); }
+  .controls { max-width: 560px; }
+  .game-top { grid-template-columns: 1fr auto; }
+  .game-top .text-button { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (max-width: 700px) {
+  .sudoku-shell, .sd-privacy { width: min(100% - 28px, 1180px); }
+  .sudoku-shell { padding-top: 34px; }
+  .tier-list { margin-top: 36px; }
+  .tier-card { padding: 18px 16px; border-radius: 20px; }
+  .level-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .game-top { grid-template-columns: 1fr; gap: 12px; padding-bottom: 16px; }
+  .game-stats { gap: 14px; }
+  .game-layout { margin-top: 18px; gap: 18px; }
+  .board { border-radius: 10px; }
+  .numpad { grid-template-columns: repeat(9, 1fr); gap: 5px; }
+  .num { aspect-ratio: 0.8; font-size: 1.3rem; border-radius: 10px; }
+  .num small { right: 0; left: 0; bottom: 3px; text-align: center; font-size: 0.55rem; }
+  .key-help { display: none; }
+  .vote-options { grid-template-columns: 1fr 1fr; }
+}

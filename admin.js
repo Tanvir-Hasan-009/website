@@ -153,6 +153,7 @@ async function loadDashboard() {
   datasetGrid.replaceChildren(...data.datasets.map(createDatasetCard));
   loginPanel.hidden = true;
   dashboard.hidden = false;
+  if (typeof window.loadSudokuInsights === 'function') window.loadSudokuInsights().catch((error) => showToast(error.message, 'error'));
 }
 
 loginForm.addEventListener('submit', async (event) => {

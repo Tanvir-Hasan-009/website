@@ -1,5 +1,6 @@
 data/store.json
 data/grades.json
+data/sudoku.json
 data/*.tmp
 .env
 node_modules/

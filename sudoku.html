@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fifty Sudoku puzzles in five tiers of rising difficulty.">
+  <title>Sudoku · 스도쿠</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/sudoku.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Student Tools home">
+      <span class="brand-mark" aria-hidden="true">S</span>
+      <span>Student Tools</span>
+    </a>
+    <nav class="main-nav" aria-label="Student tools">
+      <a href="/">Survey status</a>
+      <a href="/grades">Grade calculator</a>
+      <a class="active" href="/sudoku">Sudoku</a>
+    </nav>
+  </header>
+
+  <main class="sudoku-shell">
+    <!-- Level select -->
+    <section id="map-view" aria-labelledby="sudoku-title">
+      <div class="sudoku-hero">
+        <div>
+          <p class="eyebrow">Break time · 쉬는 시간</p>
+          <h1 id="sudoku-title">Fifty grids.<br><span>Five tiers.</span></h1>
+        </div>
+        <div class="hero-side">
+          <p>Each tier has ten puzzles and gets harder as you go. Finish a puzzle to unlock the next one in its tier.</p>
+          <div class="progress-strip" aria-live="polite">
+            <strong id="total-done">0</strong><span>/ 50 solved</span>
+            <div class="progress-bar"><i id="total-bar"></i></div>
+          </div>
+        </div>
+      </div>
+      <div id="tier-list" class="tier-list"></div>
+    </section>
+
+    <!-- Game -->
+    <section id="game-view" class="game-view" hidden aria-labelledby="game-title">
+      <div class="game-top">
+        <button id="back-to-map" class="text-button" type="button">← All levels</button>
+        <div class="game-meta">
+          <h2 id="game-title">Level 1</h2>
+          <span id="game-tier" class="tier-chip">Tier 1</span>
+        </div>
+        <div class="game-stats" aria-live="off">
+          <span><b id="stat-time">0:00</b> time</span>
+          <span><b id="stat-mistakes">0</b> mistakes</span>
+          <span><b id="stat-hints">0</b> hints</span>
+        </div>
+      </div>
+
+      <div class="game-layout">
+        <div id="board" class="board" role="grid" aria-label="Sudoku board"></div>
+
+        <div class="controls">
+          <div class="tool-row">
+            <button id="tool-undo" class="tool" type="button"><span aria-hidden="true">↶</span>Undo</button>
+            <button id="tool-erase" class="tool" type="button"><span aria-hidden="true">⌫</span>Erase</button>
+            <button id="tool-notes" class="tool" type="button" aria-pressed="false"><span aria-hidden="true">✎</span>Notes <em id="notes-state">off</em></button>
+            <button id="tool-hint" class="tool" type="button"><span aria-hidden="true">✦</span>Hint</button>
+          </div>
+          <div id="numpad" class="numpad" aria-label="Number pad"></div>
+          <div class="sub-controls">
+            <button id="tool-restart" class="text-button" type="button">Restart puzzle</button>
+            <p class="key-help">Keyboard: arrows move · 1–9 place · N notes · Backspace erase · Ctrl+Z undo</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Completion -->
+  <div id="done-dialog" class="sd-overlay" hidden>
+    <div class="sd-card" role="dialog" aria-modal="true" aria-labelledby="done-title">
+      <p class="step-label">SOLVED</p>
+      <h2 id="done-title">Level 1 complete</h2>
+      <div class="done-stats">
+        <div><strong id="done-time">0:00</strong><span>Time</span></div>
+        <div><strong id="done-mistakes">0</strong><span>Mistakes</span></div>
+        <div><strong id="done-hints">0</strong><span>Hints</span></div>
+      </div>
+      <p class="rate-q">How did that puzzle feel?</p>
+      <div class="rate-row" id="rate-row">
+        <button type="button" data-rating="too-easy">Too easy</button>
+        <button type="button" data-rating="just-right">Just right</button>
+        <button type="button" data-rating="too-hard">Too hard</button>
+      </div>
+      <div class="dialog-actions">
+        <button id="done-map" class="text-button" type="button">All levels</button>
+        <button id="done-next" type="button">Next puzzle <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next-game vote -->
+  <div id="vote-dialog" class="sd-overlay" hidden>
+    <div class="sd-card" role="dialog" aria-modal="true" aria-labelledby="vote-title">
+      <p class="step-label">ONE QUICK QUESTION</p>
+      <h2 id="vote-title">What should we build next?</h2>
+      <p class="vote-copy">Pick the game you would play most. Your answer decides the next update.</p>
+      <div id="vote-options" class="vote-options"></div>
+      <label for="vote-note" class="vote-note-label">Anything else? (optional)</label>
+      <input id="vote-note" type="text" maxlength="140" autocomplete="off" placeholder="e.g. daily challenge, timed mode…">
+      <div class="dialog-actions">
+        <button id="vote-skip" class="text-button" type="button">Not now</button>
+        <button id="vote-send" type="button" disabled>Send vote</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="sd-privacy">Gameplay is recorded anonymously (time, mistakes, hints, ratings) to improve the game. No student ID or name is collected.</p>
+  <script src="/sudoku.js" defer></script>
+</body>
+</html>

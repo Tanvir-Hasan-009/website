@@ -57,10 +57,43 @@
           <p>Optionally add <code>completed</code> with values such as <code>yes/no</code>, <code>true/false</code>, or <code>완료/미완료</code>.</p>
         </div>
       </aside>
+
+      <section id="sudoku-insights" class="sudoku-insights" aria-labelledby="sudoku-insights-title">
+        <div class="dashboard-heading">
+          <div>
+            <p class="step-label">GAME DATA</p>
+            <h2 id="sudoku-insights-title">Sudoku insights</h2>
+          </div>
+          <div class="insight-actions">
+            <button id="sudoku-refresh" class="text-button" type="button">Refresh</button>
+            <button id="sudoku-export" type="button">Download events CSV</button>
+          </div>
+        </div>
+        <div id="sudoku-totals" class="insight-totals"></div>
+        <div class="insight-grid">
+          <article class="insight-card">
+            <h3>Next game votes</h3>
+            <p class="insight-sub">One vote per player, latest choice counts.</p>
+            <div id="sudoku-votes" class="bar-list"></div>
+            <div id="sudoku-notes" class="vote-notes"></div>
+          </article>
+          <article class="insight-card">
+            <h3>Tier funnel</h3>
+            <p class="insight-sub">Players who opened a tier vs. solved at least one puzzle in it.</p>
+            <div id="sudoku-tiers" class="bar-list"></div>
+          </article>
+        </div>
+        <article class="insight-card insight-wide">
+          <h3>Every level</h3>
+          <p class="insight-sub">Look for levels with low completion, long times or many “too hard” ratings — those are where players quit.</p>
+          <div class="table-scroll"><table id="sudoku-levels" class="level-table"></table></div>
+        </article>
+      </section>
     </section>
   </main>
 
   <div id="toast" class="toast" role="status" hidden></div>
   <script src="/admin.js" defer></script>
+  <script src="/sudoku-admin.js" defer></script>
 </body>
 </html>

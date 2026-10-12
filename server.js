@@ -8,6 +8,7 @@ const { URL } = require('node:url');
 const { parseSurveyCsv, normalizeStudentId } = require('./src/csv');
 const { SurveyStore } = require('./src/store');
 const { GradeStore } = require('./src/gradeStore');
+const { SudokuStore } = require('./src/sudokuStore');
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '127.0.0.1';
@@ -16,6 +17,8 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data', 'store.j
 const GRADE_DATA_FILE = process.env.GRADE_DATA_FILE || path.join(__dirname, 'data', 'grades.json');
 const store = new SurveyStore(DATA_FILE);
 const gradeStore = new GradeStore(GRADE_DATA_FILE);
+const SUDOKU_DATA_FILE = process.env.SUDOKU_DATA_FILE || path.join(__dirname, 'data', 'sudoku.json');
+const sudokuStore = new SudokuStore(SUDOKU_DATA_FILE);
 
 const staticFiles = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
@@ -25,12 +28,17 @@ const staticFiles = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/admin.js', ['admin.js', 'text/javascript; charset=utf-8']],
   ['/grades.js', ['grades.js', 'text/javascript; charset=utf-8']],
+  ['/sudoku', ['sudoku.html', 'text/html; charset=utf-8']],
+  ['/sudoku.js', ['sudoku.js', 'text/javascript; charset=utf-8']],
+  ['/sudoku.css', ['sudoku.css', 'text/css; charset=utf-8']],
+  ['/sudoku-admin.js', ['sudoku-admin.js', 'text/javascript; charset=utf-8']],
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']]
 ]);
 
 const lookupAttempts = new Map();
 const adminAttempts = new Map();
 const gradeAttempts = new Map();
+const sudokuAttempts = new Map();
 
 function securityHeaders(res) {
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
@@ -177,6 +185,38 @@ async function handleRequest(req, res) {
       const body = await readJson(req, 64 * 1024);
       const saved = gradeStore.saveAcademicProgress(body.studentId, body.pin, body.scale, body.previousTerms, body.totalCreditsRequired);
       sendJson(res, 200, saved);
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/sudoku/puzzles') {
+      sendJson(res, 200, { puzzles: sudokuStore.puzzlesForClient() });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/sudoku/events') {
+      if (isRateLimited(sudokuAttempts, clientKey(req), 120, 5 * 60 * 1000)) {
+        sendError(res, 429, 'Too many requests. Please wait a moment.');
+        return;
+      }
+      const body = await readJson(req, 32 * 1024);
+      sendJson(res, 200, sudokuStore.addEvents(body));
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/admin/sudoku') {
+      if (!requireAdmin(req, res)) return;
+      sendJson(res, 200, sudokuStore.summary());
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/admin/sudoku.csv') {
+      if (!requireAdmin(req, res)) return;
+      securityHeaders(res);
+      res.writeHead(200, {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="sudoku-events.csv"'
+      });
+      res.end(`\ufeff${sudokuStore.toCsv()}`);
       return;
     }
 
